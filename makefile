@@ -1,7 +1,7 @@
 .DELETE_ON_ERROR:
 .SECONDARY:
 
-dpkg := fakeroot dpkg-deb -Zlzma
+dpkg := dm.pl -Zxz
 version := $(shell ./version.sh)
 
 flag := 
@@ -40,6 +40,7 @@ cycc += -fvisibility=hidden
 
 link += -Wl,-dead_strip
 link += -Wl,-no_dead_strip_inits_and_terms
+link += -FFrameworks
 
 iapt := 
 iapt += -Iapt32
@@ -68,6 +69,15 @@ flag += -Wno-logical-op-parentheses
 flag += -Wno-shift-op-parentheses
 flag += -Wno-unknown-pragmas
 flag += -Wno-unknown-warning-option
+flag += -Wno-dangling-gsl
+flag += -Wno-undefined-var-template
+flag += -Wno-string-plus-int
+flag += -Wno-macro-redefined
+flag += -Wno-writable-strings
+flag += -Wno-tautological-pointer-compare
+flag += -Wno-tautological-undefined-compare
+flag += -Wno-unused-but-set-variable
+flag += -Wno-unused-local-typedef
 
 plus += -fobjc-call-cxx-cdtors
 plus += -fvisibility-inlines-hidden
@@ -353,8 +363,8 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	
 	find _ -exec touch -t "$$(date -j -f "%s" +"%Y%m%d%H%M.%S" "$$(git show --format='format:%ct' | head -n 1)")" {} ';'
 	
-	fakeroot chown -R 0 _
-	fakeroot chgrp -R 0 _
+	#fakeroot chown -R 0 _
+	#fakeroot chgrp -R 0 _
 	fakeroot chmod 6755 _/usr/libexec/cydia/cydo
 	
 	mkdir -p debs
@@ -371,8 +381,8 @@ $(lproj_deb): $(shell find MobileCydia.app -name '*.strings') cydia-lproj.contro
 	mkdir -p __/DEBIAN
 	./control.sh cydia-lproj.control __ >__/DEBIAN/control
 	
-	fakeroot chown -R 0 __
-	fakeroot chgrp -R 0 __
+	#fakeroot chown -R 0 __
+	#fakeroot chgrp -R 0 __
 	
 	mkdir -p debs
 	ln -sf debs/cydia-lproj_$(version)_iphoneos-arm.deb Cydia_.deb

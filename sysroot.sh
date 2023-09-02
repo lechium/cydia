@@ -20,7 +20,7 @@ for command in unlzma wget; do
     fi
 done
 
-if tar --help | grep bsdtar &>/dev/null; then
+if gtar --help | grep bsdtar &>/dev/null; then
     echo "Running \`tar\` is bsdtar :(. Please read compiling.txt." 1>&2
     exit 1
 fi
@@ -61,7 +61,7 @@ function extract() {
     fi
 
     ls -la data.tar
-    tar -xf ./data.tar
+    gtar -xf ./data.tar
     rm -f data.tar
 }
 
