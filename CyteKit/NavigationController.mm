@@ -46,13 +46,29 @@
 
 - (void) reloadData {
     [super reloadData];
-
+    
     UIViewController *visible([self visibleViewController]);
     if (visible != nil)
         [visible reloadData];
+    
+    extern bool IsWildcat_;
+    
+    // Something weird happens in rootless 15+, the code above isn't sufficient to get our 'visible' view
+    // to reload properly. If the top controller is CYPackageController || SourcesController and != visible
+    // we trigger reloadData on those views to make sure changes are populated as necessary.
+    
+    if (kCFCoreFoundationVersionNumber >= 1854 && !IsWildcat_) { // >= 15.0 & !iPad
+        UIViewController *top = [self topViewController];
+        if (top && top != visible) {
+            Class packageClass = NSClassFromString(@"CYPackageController");
+            Class scClass = NSClassFromString(@"SourcesController");
+            if ([top isKindOfClass:packageClass] || [top isKindOfClass:scClass]){
+                [top reloadData];
+            }
+        }
+    }
 
     // on the iPad, this view controller is ALSO visible. :(
-    extern bool IsWildcat_;
     if (IsWildcat_)
         if (UIViewController *modal = [self modalViewController])
             if ([modal modalPresentationStyle] == UIModalPresentationFormSheet)

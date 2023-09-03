@@ -292,7 +292,7 @@ Objects/libapt64.a: $(libapt64)
 
 MobileCydia: $(object) entitlements.xml $(lapt)
 	@echo "[link] $@"
-	@$(cycc) -o $@ $(filter %.o,$^) $(link) $(libs) $(uikit) -Wl,-sdk_version,11.0
+	$(cycc) -o $@ $(filter %.o,$^) $(link) $(libs) $(uikit) -Wl,-sdk_version,11.0
 	@mkdir -p bins
 	@cp -a $@ bins/$@-$(version)_$(shell date +%s)
 	@echo "[strp] $@"
@@ -331,31 +331,31 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	cp -a Trusted.gpg _/etc/apt/trusted.gpg.d
 	cp -a Sources.list _/etc/apt/sources.list.d
 	
-	mkdir -p _/usr/libexec
-	cp -a Library _/usr/libexec/cydia
-	cp -a sysroot/usr/bin/du _/usr/libexec/cydia
-	cp -a cfversion _/usr/libexec/cydia
-	cp -a setnsfpn _/usr/libexec/cydia
+	mkdir -p _/fs/jb/usr/libexec
+	cp -a Library _/fs/jb/usr/libexec/cydia
+	cp -a sysroot/usr/bin/du _/fs/jb/usr/libexec/cydia
+	cp -a cfversion _/fs/jb/usr/libexec/cydia
+	cp -a setnsfpn _/fs/jb/usr/libexec/cydia
 	
-	cp -a cydo _/usr/libexec/cydia
+	cp -a cydo _/fs/jb/usr/libexec/cydia
 	
-	mkdir -p _/Library
-	cp -a LaunchDaemons _/Library/LaunchDaemons
+	mkdir -p _/fs/jb/Library
+	cp -a LaunchDaemons _/fs/jb/Library/LaunchDaemons
 	
-	mkdir -p _/Applications
-	cp -a MobileCydia.app _/Applications/Cydia.app
-	rm -rf _/Applications/Cydia.app/*.lproj
-	cp -a MobileCydia _/Applications/Cydia.app/Cydia
+	mkdir -p _/fs/jb/Applications
+	cp -a MobileCydia.app _/fs/jb/Applications/Cydia.app
+	rm -rf _/fs/jb/Applications/Cydia.app/*.lproj
+	cp -a MobileCydia _/fs/jb/Applications/Cydia.app/Cydia
 	
-	for meth in bzip2 gzip lzma http https store $(methods); do ln -s Cydia _/Applications/Cydia.app/"$${meth}"; done
+	for meth in bzip2 gzip lzma http https store $(methods); do ln -s Cydia _/fs/jb/Applications/Cydia.app/"$${meth}"; done
 	
-	cd MobileCydia.app && find . -name '*.png' -exec cp -af ../Images/MobileCydia.app/{} ../_/Applications/Cydia.app/{} ';'
+	cd MobileCydia.app && find . -name '*.png' -exec cp -af ../Images/MobileCydia.app/{} ../_/fs/jb/Applications/Cydia.app/{} ';'
 	@echo "[sign] Cydia.app"
-	@ldid -T0 -Sentitlements.xml _/Applications/Cydia.app
+	@ldid -T0 -Sentitlements.xml _/fs/jb/Applications/Cydia.app
 	
-	mkdir -p _/Applications/Cydia.app/Sources
-	ln -s /usr/share/bigboss/icons/bigboss.png _/Applications/Cydia.app/Sources/apt.bigboss.us.com.png
-	ln -s /usr/share/bigboss/icons/planetiphones.png _/Applications/Cydia.app/Sections/"Planet-iPhones Mods.png"
+	mkdir -p _/fs/jb/Applications/Cydia.app/Sources
+	ln -s /fs/jb/usr/share/bigboss/icons/bigboss.png _/fs/jb/Applications/Cydia.app/Sources/apt.bigboss.us.com.png
+	ln -s /fs/jb/usr/share/bigboss/icons/planetiphones.png _/fs/jb/Applications/Cydia.app/Sections/"Planet-iPhones Mods.png"
 	
 	mkdir -p _/DEBIAN
 	./control.sh cydia.control _ >_/DEBIAN/control
@@ -365,7 +365,7 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 	
 	#fakeroot chown -R 0 _
 	#fakeroot chgrp -R 0 _
-	fakeroot chmod 6755 _/usr/libexec/cydia/cydo
+	fakeroot chmod 6755 _/fs/jb/usr/libexec/cydia/cydo
 	
 	mkdir -p debs
 	ln -sf debs/cydia_$(version)_iphoneos-arm.deb Cydia.deb
@@ -374,9 +374,9 @@ debs/cydia_$(version)_iphoneos-arm.deb: MobileCydia preinst postinst cfversion s
 
 $(lproj_deb): $(shell find MobileCydia.app -name '*.strings') cydia-lproj.control
 	fakeroot rm -rf __
-	mkdir -p __/Applications/Cydia.app
+	mkdir -p __/fs/jb/Applications/Cydia.app
 	
-	cp -a MobileCydia.app/*.lproj __/Applications/Cydia.app
+	cp -a MobileCydia.app/*.lproj __/fs/jb/Applications/Cydia.app
 	
 	mkdir -p __/DEBIAN
 	./control.sh cydia-lproj.control __ >__/DEBIAN/control

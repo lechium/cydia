@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/fs/jb/usr/bin:/fs/jb/usr/libexec:/fs/jb/usr/sbin:/fs/jb/bin:/fs/jb/usr/local/bin:/binpack/usr/bin:/binpack/usr/sbin:/binpack/bin:/binpack/sbin"
 shopt -s extglob
 shopt -s nullglob
 
@@ -139,16 +139,16 @@ rm -f "${data}"/status-tmp.!("${xxxxxx}")
 
     pseudo "cy+kernel.$(lower <<<$(sysctl -n kern.ostype))" "$(sysctl -n kern.osrelease)" "virtual kernel dependency"
 
-    pseudo "cy+lib.corefoundation" "$(/usr/libexec/cydia/cfversion)" "virtual corefoundation dependency"
+    pseudo "cy+lib.corefoundation" "$(/fs/jb/usr/libexec/cydia/cfversion)" "virtual corefoundation dependency"
 
 } >"${output}"
 
 mv -f "${output}" "${status}"
 
 if [[ ${cpu} == arm || ${cpu} == arm64 ]]; then
-    if [[ ! -h /User && -d /User ]]; then
-        cp -afT /User /var/mobile
-    fi && rm -rf /User && ln -s "/var/mobile" /User
+    #if [[ ! -h /User && -d /User ]]; then
+    #    cp -afT /User /var/mobile
+    #fi && rm -rf /User && ln -s "/var/mobile" /User
 
     echo 6 >/var/lib/cydia/firmware.ver
 fi
