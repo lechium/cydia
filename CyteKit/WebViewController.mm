@@ -621,6 +621,30 @@ static _H<NSMutableSet> Diversions_;
     }
 }
 
+/*
+ 
+ for some reason in iOS 16+ this gets triggered when choosing the 'Return to Cydia' button this prevents an empty view from being displayed.
+ 2023-09-09 21:03:51.429 Cydia[10709:138480] decidePolicyForNewWindowAction:{
+     WebActionButtonKey = 0;
+     WebActionElementKey =     {
+         WebElementDOMNode = "<DOMText [#text]: 0x10c0b5010 'Return to Cydia'>";
+         WebElementFrame = "<WebFrame: 0x281dd46d0, https://cydia.saurik.com/ui/ios~iphone/1.1/progress/#!/>";
+         WebElementIsContentEditableKey = 0;
+         WebElementIsInScrollBar = 0;
+         WebElementIsSelected = 0;
+         WebElementLinkIsLive = 1;
+         WebElementLinkLabel = "Return to Cydia";
+         WebElementLinkURL = "javascript:finish()";
+         WebElementTargetFrame = "<WebFrame: 0x281dd46d0, https://cydia.saurik.com/ui/ios~iphone/1.1/progress/#!/>";
+     };
+     WebActionModifierFlagsKey = 0;
+     WebActionNavigationTypeKey = 0;
+     WebActionOriginalURLKey = "javascript:finish()";
+ } request:<NSMutableURLRequest: 0x281dd86d0> { URL: javascript:finish() } {
+ } newFrameName:_blank
+ 
+ */
+
 - (void) webView:(WebView *)view decidePolicyForNewWindowAction:(NSDictionary *)action request:(NSURLRequest *)request newFrameName:(NSString *)name decisionListener:(id<WebPolicyDecisionListener>)listener {
 #if LogBrowser
     NSLog(@"decidePolicyForNewWindowAction:%@ request:%@ %@ newFrameName:%@", action, request, [request allHTTPHeaderFields], name);
@@ -634,10 +658,19 @@ static _H<NSMutableSet> Diversions_;
         [self.delegate openURL:url];
     else {
         NSString *scheme([[url scheme] lowercaseString]);
-        if ([scheme isEqualToString:@"mailto"])
+        if ([scheme isEqualToString:@"mailto"]) {
             [self _openMailToURL:url];
-        else
+        } else {
+            if ([name isEqualToString:@"_blank"]) {
+                NSDictionary *WebActionElement = [action objectForKey:@"WebActionElementKey"];
+                NSString *link = WebActionElement[@"WebElementLinkLabel"];
+                if ([link isEqualToString:UCLocalize("RETURN_TO_CYDIA")]) {
+                    [self webViewClose:view];
+                    return;
+                }
+            }
             [self pushRequest:request forAction:action asPop:[name isEqualToString:@"_popup"]];
+        }
     }
 
     [listener ignore];

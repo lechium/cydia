@@ -6,7 +6,7 @@ _
 __
 Cydia.deb
 Cydia_.deb
-debs
+debs*
 .DS_Store
 *.o
 *.dSYM
@@ -17,3 +17,4 @@ setnsfpn
 bins
 Objects
 cydo
+cydiatar
